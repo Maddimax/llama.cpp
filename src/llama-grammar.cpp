@@ -663,6 +663,9 @@ const char * llama_grammar_parser::parse_sequence(
             if (min_times > MAX_REPETITION_THRESHOLD) {
                 throw std::runtime_error(std::string("number of repetitions exceeds sane defaults, please reduce the number of repetitions"));
             }
+            if (max_times != UINT64_MAX && max_times < min_times) {
+                throw std::runtime_error(std::string("repetition minimum exceeds its maximum at ") + pos);
+            }
             if (max_times != UINT64_MAX && max_times > MAX_REPETITION_THRESHOLD) {
                 max_times = UINT64_MAX;
             }

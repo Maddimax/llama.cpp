@@ -335,6 +335,90 @@ static void test_simple_grammar() {
         }
     );
     test_schema(
+        "min 100",
+        // Schema
+        R"""({
+            "type": "integer",
+            "minimum": 100
+        })""",
+        // Passing strings
+        {
+            "100",
+            "101",
+            "999",
+            "1000",
+        },
+        // Failing strings
+        {
+            "10",
+            "99",
+            "0",
+        }
+    );
+    test_schema(
+        "min 1023",
+        // Schema
+        R"""({
+            "type": "integer",
+            "minimum": 1023
+        })""",
+        // Passing strings
+        {
+            "1023",
+            "1024",
+            "1100",
+            "9999",
+            "10000",
+        },
+        // Failing strings
+        {
+            "1000",
+            "1022",
+            "123",
+            "999",
+        }
+    );
+    test_schema(
+        "min 215",
+        // Schema
+        R"""({
+            "type": "integer",
+            "minimum": 215
+        })""",
+        // Passing strings
+        {
+            "215",
+            "300",
+            "2000",
+        },
+        // Failing strings
+        {
+            "214",
+            "99",
+        }
+    );
+    test_schema(
+        "max -1023",
+        // Schema
+        R"""({
+            "type": "integer",
+            "maximum": -1023
+        })""",
+        // Passing strings
+        {
+            "-1023",
+            "-1100",
+            "-10000",
+        },
+        // Failing strings
+        {
+            "-1000",
+            "-1022",
+            "-123",
+            "0",
+        }
+    );
+    test_schema(
         "min 5 max 30",
         // Schema
         R"""({

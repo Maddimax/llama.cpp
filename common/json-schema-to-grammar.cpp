@@ -70,6 +70,46 @@ static void build_min_max_int(int64_t min_value, int64_t max_value, std::strings
         }
         out << "}";
     };
+    // the digits after a lower bound's first digit: as many as the bound has left and not less than them, or more digits
+    // works on the string, because converting the rest to an integer drops its leading zeros and with them digit positions
+    std::function<void(const std::string &, int)> min_rest = [&](const std::string & rest, int decimals) {
+        const int  len  = (int) rest.length();
+        const char c    = rest[0];
+        const int  less = std::max(decimals - 1, 1);
+
+        if (len == 1) {
+            if (c == '0') {
+                more_digits(1, decimals);
+                return;
+            }
+            if (c > '0') {
+                digit_range('0', c - 1);
+                out << " ";
+                more_digits(1, less);
+                out << " | ";
+            }
+            digit_range(c, '9');
+            out << " ";
+            more_digits(0, less);
+            return;
+        }
+        if (c > '0') {
+            digit_range('0', c - 1);
+            out << " ";
+            more_digits(len, less);
+            out << " | ";
+        }
+        digit_range(c, c);
+        out << " (";
+        min_rest(rest.substr(1), less);
+        out << ")";
+        if (c < '9') {
+            out << " | ";
+            digit_range(c + 1, '9');
+            out << " ";
+            more_digits(len - 1, less);
+        }
+    };
     std::function<void(const std::string_view &, const std::string_view &)> uniform_range =
         [&](const std::string_view & from, const std::string_view & to) {
             size_t i = 0;
@@ -195,7 +235,7 @@ static void build_min_max_int(int64_t min_value, int64_t max_value, std::strings
             }
             digit_range(c, c);
             out << " (";
-            build_min_max_int(std::stoll(min_s.substr(1)), std::numeric_limits<int64_t>::max(), out, less_decimals, /* top_level= */ false);
+            min_rest(min_s.substr(1), less_decimals);
             out << ")";
             if (c < '9') {
                 out << " | ";
